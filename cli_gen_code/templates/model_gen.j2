@@ -1,0 +1,20 @@
+from pydantic import BaseModel, Field, constr, conint
+from typing import List, Dict, Any
+
+{% for class_name, fields in classes|dictsort(reverse=True) %}
+class {{ class_name }}(BaseModel):
+    {%- for field_name, field_type in fields.items() %}
+    {{ field_name }}: {{ field_type }}
+    {%- endfor %}
+{% endfor %}
+
+class Configuration(BaseModel):
+    specification: {{ model_name }}Specification
+    settings: {{ model_name }}Settings
+
+class {{ model_name|capitalize() }}Document(BaseModel):
+    kind: constr(max_length=32) = Field(default="{{ model_name }}", const=True)
+    name: constr(max_length=128)
+    version: constr(regex=r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$")
+    description: constr(max_length=4096)
+    configuration: Configuration
