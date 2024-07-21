@@ -7,7 +7,7 @@ python cli_gen_code/main.py gen-rest -models="G:\\Programms\\PyCharmProjects\\VK
 
 if [ ! -d .git ]; then
     git init
-    git remote add origin https://github.com/AlLixAI/VKintern.git
+    git remote add origin https://github.com/AlLixAI/VKintern
 fi
 git add .
 git commit -m "Генерация pydantic моделей и контроллеров"
