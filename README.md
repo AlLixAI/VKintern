@@ -53,15 +53,18 @@
 2. **Генерация кода по заранее созданному документу JSON**
    Пример генерации pydantic моделей из файла engine.json в папку rest\models\engine\
    Все модели необходимо загружать в директорию models, в уже существующую или просто указать название папки, создается автоматически.
-   
+
+   ```bash
    python cli_gen_code/main.py gen-models -json-schema-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\engine.json" -out-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" 
    
    
-   Пример генерации эндпоинтов для REST приложения, CLI создает эндпоинты всех файлов указанной папки, в примере \rest\models\engine\
-   Все роуты необходимо загружать в папку routes, в отдельню папку kind документа, в уже существующую или просто указать название папки, создается автоматически.
+Пример генерации эндпоинтов для REST приложения, CLI создает эндпоинты всех файлов указанной папки, в примере \rest\models\engine\
+Все роуты необходимо загружать в папку routes, в отдельню папку kind документа, в уже существующую или просто указать название папки, создается автоматически.
    
+   ```bash
    python cli_gen_code/main.py gen-rest -models="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" -rest-routes="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\routes\engine\"
-
+   
+   
 В корневой папке проекта есть файл generate_and_commit.sh для генерации моделей. Но его нужно отредактировать на нужный файл.
 Также этот файл сделает создает новую версию программу на git под новым тегом.
 
