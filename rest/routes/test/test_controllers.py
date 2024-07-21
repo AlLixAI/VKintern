@@ -33,14 +33,15 @@ async def create_test_item(
         )
         session.add(new_app)
         await session.commit()
-
-        kafka_message = {"uuid": str(new_uuid), "kind": test_item.name, "name": test_item.name}
-        await kafka_producer.send_message("quickstrt-event", str(new_uuid), kafka_message)
+        try:
+            kafka_message = {"uuid": str(new_uuid), "kind": test_item.name, "name": test_item.name}
+            await kafka_producer.send_message("quickstrt-event", str(new_uuid), kafka_message)
+        except Exception as e:
+            print(e)
 
         return {"uuid": str(new_uuid)}
 
     except Exception as e:
-
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"error to create test file: {str(e)}")
 
@@ -51,16 +52,19 @@ async def update_test_configuration(
     session: AsyncSession = Depends(get_async_session)
 ):
     try:
-        statement = select(JSON_App).where(JSON_App.UUID == uuid)
-        app = await session.execute(statement)
+        app = await session.execute(
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
+        )
+
+        app = app.scalars().first()
 
         if not app:
-            raise HTTPException(status_code=404, detail="Test not found")
+            raise HTTPException(status_code=404, detail="test item not found")
 
-        app = app.scalar_one()
-
+        old_config = app.json['configuration']
         app.json['configuration']['specification'] = configuration.specification.dict()
         app.json['configuration']['settings'] = configuration.settings.dict()
+        new_config = app.json['configuration']
 
         await session.execute(
             update(JSON_App)
@@ -69,6 +73,12 @@ async def update_test_configuration(
         )
 
         await session.commit()
+
+        try:
+            kafka_message = {"uuid": str(app.UUID), "old_config": old_config, "new_config": new_config}
+            await kafka_producer.send_message("quickstrt-event", str(app.UUID), kafka_message)
+        except Exception as e:
+            print(e)
 
         return {"message": f"Configuration updated successfully for UUID: {uuid}"}
 
@@ -85,15 +95,18 @@ async def update_test_settings(
     session: AsyncSession = Depends(get_async_session)
 ):
     try:
-        statement = select(JSON_App).where(JSON_App.UUID == uuid)
-        app = await session.execute(statement)
+        app = await session.execute(
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
+        )
+
+        app = app.scalars().first()
 
         if not app:
-            raise HTTPException(status_code=404, detail="Test not found")
+            raise HTTPException(status_code=404, detail="test item not found")
 
-        app = app.scalar_one()
-
+        old_settings = app.json['configuration']['settings']
         app.json['configuration']['settings'] = settings.dict()
+        new_settings = app.json['configuration']['settings']
 
         await session.execute(
             update(JSON_App)
@@ -103,13 +116,19 @@ async def update_test_settings(
 
         await session.commit()
 
+        try:
+            kafka_message = {"uuid": str(app.UUID), "old_settings": old_settings, "new_settings": new_settings}
+            await kafka_producer.send_message("quickstrt-event", str(app.UUID), kafka_message)
+        except Exception as e:
+            print(e)
+
         return {"message": f"Configuration updated successfully for UUID: {uuid}"}
 
     except HTTPException:
         raise
     except Exception as e:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to update configuration: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to update settings: {str(e)}")
 
 
 @router.put("/{uuid}/state/")
@@ -120,18 +139,30 @@ async def update_test_state(
 ):
     try:
         app = await session.execute(
-            select(JSON_App).where(JSON_App.UUID == uuid)
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
         )
-        if not app:
-            raise HTTPException(status_code=404, detail="Test not found")
 
-        app = app.scalar_one()
+        app = app.scalars().first()
+
+        if not app:
+            raise HTTPException(status_code=404, detail="test item not found")
+
+
+        old_state = app.state
         app.state = new_state.value
 
         await session.commit()
 
+        try:
+            kafka_message = {"uuid": str(app.UUID), "old_state": str(old_state), "new_state": str(new_state.value)}
+            await kafka_producer.send_message("quickstrt-event", str(app.UUID), kafka_message)
+        except Exception as e:
+            print(e)
+
         return {"message": f"State updated successfully for UUID: {uuid}"}
 
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to update state: {str(e)}")
@@ -143,19 +174,27 @@ async def delete_test_item(
 ):
     try:
         app = await session.execute(
-            select(JSON_App).where(JSON_App.UUID == uuid)
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
         )
 
-        if not app:
-            raise HTTPException(status_code=404, detail=f"Test not found")
+        app = app.scalars().first()
 
-        app = app.scalar_one()
+        if not app:
+            raise HTTPException(status_code=404, detail="test item not found")
 
         await session.delete(app)
         await session.commit()
 
+        try:
+            kafka_message = {"uuid": str(uuid), "deleted": True}
+            await kafka_producer.send_message("quickstrt-event", str(uuid), kafka_message)
+        except Exception as e:
+            print(e)
+
         return {"message": f"Test with UUID {uuid} deleted successfully"}
 
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"Failed to delete test item: {str(e)}")
@@ -168,14 +207,19 @@ async def read_test_item(
 ):
     try:
         app = await session.execute(
-            select(JSON_App).where(JSON_App.UUID == uuid)
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
         )
 
+        app = app.scalars().first()
+
         if not app:
-            raise HTTPException(status_code=404, detail=f"Test not found")
+            raise HTTPException(status_code=404, detail="test item not found")
 
-        app = app.scalar_one()
-
+        try:
+            kafka_message = {"uuid": str(uuid), "get": True}
+            await kafka_producer.send_message("quickstrt-event", str(app.UUID), kafka_message)
+        except Exception as e:
+            print(e)
 
         return {
             "UUID": str(app.UUID),
@@ -187,9 +231,11 @@ async def read_test_item(
             "json": app.json
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to delete test item: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get test item: {str(e)}")
 
 @router.get("/{uuid}/state")
 async def read_test_state(
@@ -198,19 +244,27 @@ async def read_test_state(
 ):
     try:
         app = await session.execute(
-            select(JSON_App).where(JSON_App.UUID == uuid)
+            select(JSON_App).where(JSON_App.UUID == uuid, JSON_App.kind == "test")
         )
 
+        app = app.scalars().first()
+
         if not app:
-            raise HTTPException(status_code=404, detail=f"Test not found")
+            raise HTTPException(status_code=404, detail="test item not found")
 
-        app = app.scalar_one()
 
+        try:
+            kafka_message = {"uuid": str(app.UUID), "get_state": True}
+            await kafka_producer.send_message("quickstrt-event", str(app.UUID), kafka_message)
+        except Exception as e:
+            print(e)
 
         return {
             "state": app.state.value
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         await session.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to delete test item: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get state test item: {str(e)}")

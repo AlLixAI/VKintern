@@ -1,4 +1,6 @@
 import os
+import sys
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
@@ -18,11 +20,14 @@ def generate_controllers(models_dir, routes_dir):
             prefix = model_name.lower()
             tag = model_name.capitalize()
 
-            output_file = os.path.join(routes_dir, f"{prefix}_controllers.py")
+            output_file = os.path.join(routes_dir, f'{prefix}_controllers.py')
+
+            topic = 'quickstrt-event' # Это небольшой костыль.
 
             context = {
                 'prefix': prefix,
                 'tag': tag,
+                'topic': topic
             }
 
             template = env.get_template('controller_gen.j2')

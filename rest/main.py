@@ -28,13 +28,14 @@ scan_and_include_routes(app, routes_directory)
 async def hello():
     return {"hello": "world"}
 
-@app.on_event("startup")
-async def startup_event():
-    await kafka_producer.start()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    await kafka_producer.stop()
+# Включение кафки
+# @app.on_event("startup")
+# async def startup_event():
+#     await kafka_producer.start()
+#
+# @app.on_event("shutdown")
+# async def shutdown_event():
+#     await kafka_producer.stop()
 
 if __name__ == "__main__":
     import uvicorn

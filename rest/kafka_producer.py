@@ -27,6 +27,7 @@ class KafkaProducer:
 
 KAFKA_BOOTSTRAP_SERVERS = 'localhost:9092'
 KAFKA_CLIENT_ID = 'fastapi-producer'
+# topic = 'quickstrt-event' # topic у меня не импортируется в controller_generator. Там свой topic. Пока что изменять там.
 
 kafka_producer = KafkaProducer(
     bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,

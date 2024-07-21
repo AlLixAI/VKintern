@@ -1,4 +1,7 @@
-python cli_gen_code/main.py gen-models -json-schema-dir="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\different_documents\\engine.json" -out-dir="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\rest\\models\\engine\\"
+# Тут сделано кривовато, но можно исправить! :)
+
+
+python cli_gen_code/main.py gen-models -json-schema-dir="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\different_documents\\test.json" -out-dir="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\rest\\models\\test\\"
 # -json-schema-dir = Путь до вашего .json файла
 # -out-dir = project\\rest\\models\\тип документа (создается папка)\\ Сохранять сюда все новые модели
 python cli_gen_code/main.py gen-rest -models="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\rest\\models\\engine\\" -rest-routes="G:\\Programms\\PyCharmProjects\\VKinternProjectfastapi\\rest\\routes\\engine\\"
