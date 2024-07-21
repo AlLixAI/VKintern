@@ -13,5 +13,5 @@ git add .
 git commit -m "Генерация pydantic моделей и контроллеров"
 NEW_TAG=$(date +'%Y%m%d%H%M%S')
 git tag $NEW_TAG
-git push origin $NEW_TAG
+git push origin main $NEW_TAG
 exec $SHELL
