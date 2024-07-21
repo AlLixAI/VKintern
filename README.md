@@ -61,9 +61,8 @@
 Пример генерации эндпоинтов для REST приложения, CLI создает эндпоинты всех файлов указанной папки, в примере \rest\models\engine\
 Все роуты необходимо загружать в папку routes, в отдельню папку kind документа, в уже существующую или просто указать название папки, создается автоматически.
    
-   ```bash
-   python cli_gen_code/main.py gen-rest -models="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" -rest-routes="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\routes\engine\"
-   
+      ```bash
+      python cli_gen_code/main.py gen-rest -models="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" -rest-routes="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\routes\engine\"
    
 В корневой папке проекта есть файл generate_and_commit.sh для генерации моделей. Но его нужно отредактировать на нужный файл.
 Также этот файл сделает создает новую версию программу на git под новым тегом.
