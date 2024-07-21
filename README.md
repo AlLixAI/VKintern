@@ -48,3 +48,7 @@
      state ENUM('NEW', 'INSTALLING', 'RUNNING') DEFAULT 'NEW',
      json JSONB
    );
+В rest/models/base_db есть .sql файл для создание таблицы
+
+2. **Генерация кода по заранее созданному документу JSON**
+   это
