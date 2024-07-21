@@ -54,16 +54,17 @@
    Пример генерации pydantic моделей из файла engine.json в папку rest\models\engine\
    Все модели необходимо загружать в директорию models, в уже существующую или просто указать название папки, создается автоматически.
 
-   ```bash
-   python cli_gen_code/main.py gen-models -json-schema-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\engine.json" -out-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" 
+         ```bash
+         python cli_gen_code/main.py gen-models -json-schema-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\engine.json" -out-dir="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" 
    
    
 Пример генерации эндпоинтов для REST приложения, CLI создает эндпоинты всех файлов указанной папки, в примере \rest\models\engine\
 Все роуты необходимо загружать в папку routes, в отдельню папку kind документа, в уже существующую или просто указать название папки, создается автоматически.
-   
+
       ```bash
       python cli_gen_code/main.py gen-rest -models="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\models\engine\" -rest-routes="G:\Programms\PyCharmProjects\VKinternProjectfastapi\rest\routes\engine\"
-   
+
+
 В корневой папке проекта есть файл generate_and_commit.sh для генерации моделей. Но его нужно отредактировать на нужный файл.
 Также этот файл сделает создает новую версию программу на git под новым тегом.
 
@@ -78,14 +79,30 @@
    Приложение можно запустить через Dockerfile.
    docker-compose с запуском БД, kafka и тд, работает не очень корректно. Его стоит подправить
 
-5. **REST API**
-   Основные Эндпоинты:
-      POST /{kind}/ - Создание нового документа типа {kind}.
-      PUT /{kind}/{uuid}/configuration/ - Обновление словаря configuration.
-      PUT /{kind}/{uuid}/settings/ - Обновление словаря settings.
-      PUT /{kind}/{uuid}/state - Обновление состояния объекта.
-      DELETE /{kind}/{uuid}/ - Удаление объекта.
-      GET /{kind}/{uuid} - Получение объекта.
-      GET /{kind}/{uuid}/state - Получение состояния объекта.
-                                                
+## 5. REST API
+
+### Основные Эндпоинты
+
+Ниже представлены основные эндпоинты вашего REST API:
+
+- **POST** `/api/{kind}/`  
+  Создание нового документа типа `{kind}`.
+
+- **PUT** `/api/{kind}/{uuid}/configuration/`  
+  Обновление словаря `configuration` для объекта с указанным `uuid`.
+
+- **PUT** `/api/{kind}/{uuid}/settings/`  
+  Обновление словаря `settings` для объекта с указанным `uuid`.
+
+- **PUT** `/api/{kind}/{uuid}/state`  
+  Обновление состояния объекта с указанным `uuid`.
+
+- **DELETE** `/api/{kind}/{uuid}/`  
+  Удаление объекта с указанным `uuid`.
+
+- **GET** `/api/{kind}/{uuid}`  
+  Получение объекта с указанным `uuid`.
+
+- **GET** `/api/{kind}/{uuid}/state`  
+  Получение состояния объекта с указанным `uuid`.
 
