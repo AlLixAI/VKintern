@@ -5,7 +5,10 @@ python cli_gen_code/main.py gen-rest -models="G:\\Programms\\PyCharmProjects\\VK
 # -models = Путь до папки в которой находится pydantic модель project\\rest\\models\\тип документа (создается папка)\\
 # -rest-routes = Путь куда сохраняются эндпоинты \\rest\\routes\\тип документа (создается папка)\\ Сюда сохранять все новые руты
 
-git init
+if [ ! -d .git ]; then
+    git init
+    git remote add origin https://github.com/AlLixAI/VKintern.git
+fi
 git add .
 git commit -m "Генерация pydantic моделей и контроллеров"
 NEW_TAG=$(date +'%Y%m%d%H%M%S')
