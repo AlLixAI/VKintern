@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from rest.database import get_async_session
 from rest.models.{{ prefix }}.{{ prefix }}_model import {{ tag }}Document, Configuration, {{ prefix }}Settings
+from rest.kafka_producer import kafka_producer
+
 
 router = APIRouter(
     prefix="/{{ prefix }}",
@@ -32,13 +34,15 @@ async def create_{{ prefix }}_item(
         session.add(new_app)
         await session.commit()
 
+        kafka_message = {"uuid": str(new_uuid), "kind": {{ prefix }}_item.name, "name": {{ prefix }}_item.name}
+        await kafka_producer.send_message("quickstrt-event", str(new_uuid), kafka_message)
+
         return {"uuid": str(new_uuid)}
 
     except Exception as e:
 
         await session.rollback()
         raise HTTPException(status_code=500, detail=f"error to create {{ prefix }} file: {str(e)}")
-
 
 @router.put("/{uuid}/configuration/")
 async def update_{{ prefix }}_configuration(

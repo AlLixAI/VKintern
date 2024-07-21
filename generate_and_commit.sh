@@ -7,7 +7,7 @@ python cli_gen_code/main.py gen-rest -models="G:\\Programms\\PyCharmProjects\\VK
 
 if [ ! -d .git ]; then
     git init
-    git remote add main https://github.com/AlLixAI/VKintern
+    git remote add main https://github.com/AlLixAI/VKintern # нужный гит репозиторий
 fi
 git add .
 git commit -m "Генерация pydantic моделей и контроллеров"
@@ -15,4 +15,4 @@ NEW_TAG=$(date +'%Y%m%d%H%M%S')
 git tag $NEW_TAG
 git push origin main
 git push origin $NEW_TAG
-exec $SHELL
+exec $SHELL # можно удалить, если не нужно

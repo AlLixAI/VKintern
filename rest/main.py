@@ -3,6 +3,8 @@ import os
 
 from fastapi import FastAPI
 
+from rest.kafka_producer import kafka_producer
+
 app = FastAPI()
 
 def include_router_from_file(app, router_file):
@@ -22,13 +24,17 @@ def scan_and_include_routes(app, routes_directory):
 routes_directory = os.path.join(os.path.dirname(__file__), "routes")
 scan_and_include_routes(app, routes_directory)
 
-
 @app.get("/")
 async def hello():
     return {"hello": "world"}
 
-import platform
-print(platform.python_version())
+@app.on_event("startup")
+async def startup_event():
+    await kafka_producer.start()
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    await kafka_producer.stop()
 
 if __name__ == "__main__":
     import uvicorn
